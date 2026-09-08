@@ -7,7 +7,6 @@ const orgListEl = document.getElementById("orgList");
 const emptyState = document.getElementById("emptyState");
 const favoriteListEl = document.getElementById("favoriteList");
 const favEmptyState = document.getElementById("favEmptyState");
-const pauseToggle = document.getElementById("pauseTracking");
 const clearHistoryBtn = document.getElementById("clearHistoryBtn");
 const clearedMsg = document.getElementById("clearedMsg");
 
@@ -146,15 +145,6 @@ async function renderFavorites() {
   });
 }
 
-async function renderTrackingControls() {
-  const { trackingPaused } = await chrome.storage.sync.get({ trackingPaused: false });
-  pauseToggle.checked = trackingPaused;
-}
-
-pauseToggle.addEventListener("change", async () => {
-  await chrome.storage.sync.set({ trackingPaused: pauseToggle.checked });
-});
-
 clearHistoryBtn.addEventListener("click", async () => {
   await chrome.storage.local.set({ recentRepos: [] });
   clearedMsg.hidden = false;
@@ -165,4 +155,3 @@ clearHistoryBtn.addEventListener("click", async () => {
 
 renderOrgs();
 renderFavorites();
-renderTrackingControls();

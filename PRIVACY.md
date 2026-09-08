@@ -38,10 +38,11 @@ API, and never sees pages on any other site.
 
 ## Controlling the recent list
 
-The settings page has two controls for it:
+You control it from two places:
 
-- **Pause tracking** stops anything new being added.
-- **Clear recent history** erases the list.
+- **Pause**, at the bottom of the popup, stops anything new being added. The
+  popup shows whether it is currently tracking or paused.
+- **Clear recent history**, on the settings page, erases the list.
 
 Removing the extension deletes everything it stored.
 

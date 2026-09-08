@@ -150,22 +150,6 @@ hr {
   margin: 32px 0 0;
 }
 
-.toggle-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 13px;
-  line-height: 1.5;
-  cursor: pointer;
-  margin: 0 0 14px;
-}
-
-.toggle-row input {
-  margin: 2px 0 0;
-  flex-shrink: 0;
-  accent-color: var(--accent);
-}
-
 .button-row {
   display: flex;
   align-items: center;
