@@ -6,6 +6,7 @@
   --text-muted: #8b949e;
   --accent: #58a6ff;
   --star: #e3b341;
+  --star-idle: #6e7681;
   --hover: #1c2128;
 }
 
@@ -208,7 +209,9 @@ ul {
   border: none;
   cursor: pointer;
   font-size: 14px;
-  color: var(--border);
+  /* Not --border: at 1.55:1 against the popup background an unfilled star is
+     effectively invisible, which hides the only way to create a favorite. */
+  color: var(--star-idle);
   padding: 2px 4px;
   line-height: 1;
 }

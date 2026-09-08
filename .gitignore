@@ -10,3 +10,6 @@ session-transcript.md
 # Local noise
 .DS_Store
 node_modules/
+
+# Store listing assets are built from screenshots, not source
+store-assets/
