@@ -1,0 +1,12 @@
+# Build output
+dist/
+*.zip
+
+# Working notes that are not part of the project
+release-plan.md
+session-transcript.md
+.specstory/
+
+# Local noise
+.DS_Store
+node_modules/

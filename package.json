@@ -1,0 +1,10 @@
+{
+  "name": "org-switcher-for-github",
+  "private": true,
+  "type": "module",
+  "description": "Tooling only. The extension itself has no dependencies and no build step.",
+  "scripts": {
+    "test": "node --test",
+    "build": "./build.sh"
+  }
+}

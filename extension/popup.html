@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Org Switcher for GitHub</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <span class="title">Org Switcher for GitHub</span>
+    <button id="settingsBtn" title="Settings" aria-label="Settings">⚙</button>
+  </header>
+
+  <main>
+    <p id="popupMessage" class="popup-message" role="status" hidden></p>
+
+    <section id="orgsSection">
+      <h2>Organizations</h2>
+      <ul id="orgList" class="org-list"></ul>
+      <p id="orgEmptyState" class="empty-state" hidden>
+        No organizations added yet. Click ⚙ to add some.
+      </p>
+    </section>
+
+    <section id="favoritesSection" hidden>
+      <h2>Favorites</h2>
+      <ul id="favoriteList" class="repo-list"></ul>
+    </section>
+
+    <section id="recentSection" hidden>
+      <h2>Recent repos</h2>
+      <ul id="recentList" class="repo-list"></ul>
+    </section>
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>

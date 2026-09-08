@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Org Switcher for GitHub — Settings</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <div class="wrap">
+    <h1>Org Switcher for GitHub</h1>
+    <p class="subtitle">Add the organizations you want quick access to. Use the exact org slug from its GitHub URL (e.g. for <code>github.com/octo-org</code>, enter <code>octo-org</code>).</p>
+
+    <form id="addOrgForm">
+      <input
+        id="orgInput"
+        type="text"
+        placeholder="org-slug"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button type="submit">Add organization</button>
+    </form>
+    <p id="errorMsg" class="error" hidden></p>
+
+    <ul id="orgList" class="org-list"></ul>
+    <p id="emptyState" class="empty-state" hidden>No organizations added yet.</p>
+
+    <hr />
+
+    <h2>Favorites</h2>
+    <p class="subtitle">Managed from the popup by clicking the star next to a recent repo. You can remove them here too.</p>
+    <ul id="favoriteList" class="org-list"></ul>
+    <p id="favEmptyState" class="empty-state" hidden>No favorite repos pinned yet.</p>
+
+    <hr />
+
+    <h2>Recent repos</h2>
+    <p class="subtitle">The popup lists repos you have opened on github.com recently. That list is worked out from the address of tabs you open, is stored only on this computer, and is never sent anywhere.</p>
+
+    <label class="toggle-row">
+      <input type="checkbox" id="pauseTracking" />
+      <span>Pause recording. Nothing new is added to the list while this is on.</span>
+    </label>
+
+    <div class="button-row">
+      <button type="button" id="clearHistoryBtn" class="secondary-btn">Clear recent history</button>
+      <span id="clearedMsg" class="hint" hidden>Recent history cleared.</span>
+    </div>
+
+    <hr />
+
+    <p class="disclaimer">
+      Unofficial. Not affiliated with, endorsed by, or sponsored by GitHub, Inc.
+      GitHub is a trademark of GitHub, Inc.
+    </p>
+  </div>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>

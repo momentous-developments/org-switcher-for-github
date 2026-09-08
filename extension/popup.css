@@ -1,0 +1,247 @@
+:root {
+  --bg: #0d1117;
+  --bg-elevated: #161b22;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --star: #e3b341;
+  --hover: #1c2128;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  width: 300px;
+  max-height: 520px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 1;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+#settingsBtn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+#settingsBtn:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+}
+
+main {
+  padding: 8px 0 12px;
+}
+
+section {
+  padding: 6px 12px 10px;
+}
+
+h2 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin: 6px 0 6px;
+  font-weight: 600;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.org-list li,
+.repo-list li {
+  border-radius: 6px;
+  margin-bottom: 2px;
+}
+
+.org-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.org-name-btn {
+  flex: 1;
+  min-width: 0;
+}
+
+.org-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.1s ease;
+  padding-right: 2px;
+}
+
+/* Reveal on hover of the row, or on keyboard focus of an action button
+   (so the icons are still reachable without a mouse). */
+.org-row:hover .org-actions,
+.org-actions:focus-within {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.icon-only-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+}
+
+.icon-only-btn:hover,
+.icon-only-btn:focus-visible {
+  background: var(--border);
+  color: var(--text);
+}
+
+/* Custom tooltip (native title= has too long a delay / too small a font
+   for icon-only buttons this size). Shown below the icon so it doesn't get
+   clipped by the sticky header on the first row of the list. */
+.icon-only-btn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 130%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1c2128;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 6px;
+  font-size: 11px;
+  line-height: 1.2;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.1s ease;
+  z-index: 5;
+}
+
+.icon-only-btn:hover::after,
+.icon-only-btn:focus-visible::after {
+  opacity: 1;
+}
+
+.row-btn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  text-align: left;
+  padding: 7px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  gap: 8px;
+}
+
+.row-btn:hover {
+  background: var(--hover);
+}
+
+.org-icon,
+.repo-icon {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.row-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.repo-owner {
+  color: var(--text-muted);
+}
+
+.star-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--border);
+  padding: 2px 4px;
+  line-height: 1;
+}
+
+.star-btn.active,
+.star-btn:hover {
+  color: var(--star);
+}
+
+.empty-state {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 4px 0 0;
+}
+
+.repo-row {
+  display: flex;
+  align-items: center;
+}
+
+.repo-name-btn {
+  flex: 1;
+}
+
+.popup-message {
+  margin: 0 12px 4px;
+  padding: 7px 9px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--star);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.4;
+}
