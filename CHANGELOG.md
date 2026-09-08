@@ -4,8 +4,8 @@
 
 First public release.
 
-- Add your GitHub organizations on the settings page, then open any of them from
-  the toolbar. Hovering an organization reveals shortcuts to its Overview,
+- Add your GitHub organizations, or your own username, on the settings page,
+  then open any of them from the toolbar. Hovering an organization reveals shortcuts to its Overview,
   Repositories and Projects pages.
 - Recently visited repos are listed automatically, worked out from the addresses
   of GitHub tabs you open. Nothing is sent anywhere and no GitHub API is called.

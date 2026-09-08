@@ -1,3 +1,5 @@
+import { ORG_DESTINATIONS } from "./lib/org-destinations.js";
+
 const MAX_FAVORITES = 5;
 const MAX_RECENT_SHOWN = 5;
 
@@ -9,12 +11,6 @@ const ACTION_ICONS = {
   overview: `<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0Zm0 1.5A6.5 6.5 0 1 1 1.5 8 6.5 6.5 0 0 1 8 1.5Zm0 2.75a1 1 0 1 0 0 2 1 1 0 0 0 0-2ZM6.75 7.5a.75.75 0 0 0 0 1.5h.5v2.25h-.5a.75.75 0 0 0 0 1.5h2.5a.75.75 0 0 0 0-1.5h-.5V8.25a.75.75 0 0 0-.75-.75Z"/></svg>`,
   repos: `<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8Z"/></svg>`,
   projects: `<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M1.75 2A1.75 1.75 0 0 0 0 3.75v8.5C0 13.216.784 14 1.75 14h12.5A1.75 1.75 0 0 0 16 12.25v-8.5A1.75 1.75 0 0 0 14.25 2ZM1.5 3.75a.25.25 0 0 1 .25-.25H4v9H1.75a.25.25 0 0 1-.25-.25Zm4 8.75v-9h3v9Zm4.5 0v-9h2.75a.25.25 0 0 1 .25.25v8.5a.25.25 0 0 1-.25.25Z"/></svg>`,
-};
-
-const ORG_DESTINATIONS = {
-  overview: (org) => `https://github.com/${encodeURIComponent(org)}`,
-  repos: (org) => `https://github.com/orgs/${encodeURIComponent(org)}/repositories`,
-  projects: (org) => `https://github.com/orgs/${encodeURIComponent(org)}/projects`,
 };
 
 function openUrl(url) {

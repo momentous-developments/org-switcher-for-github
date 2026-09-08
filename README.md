@@ -14,8 +14,9 @@ This is a small popup that makes it one.
 ## What it does
 
 - **Organizations.** Add them once in Settings, then click one to open its
-  repository list. Hovering a row reveals shortcuts to that organization's
-  Overview, Repositories and Projects pages.
+  repository list. Hovering a row reveals shortcuts to that account's Overview,
+  Repositories and Projects pages. Personal accounts work as well as
+  organizations, so you can add your own username too.
 - **Recent repos.** The five most recent repos you opened on github.com, listed
   automatically.
 - **Favorites.** Star a repo to pin it, up to five. Favorites follow your Chrome
