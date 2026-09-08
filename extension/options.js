@@ -24,8 +24,22 @@ async function getOrgs() {
   return orgs;
 }
 
+// Sync storage can refuse a write (per-item size, or the write rate limit).
+// Reporting it through the same error line the form already uses beats an
+// unhandled rejection that looks like nothing happened.
+async function saveSync(values) {
+  try {
+    await chrome.storage.sync.set(values);
+    return true;
+  } catch (err) {
+    console.error("Could not save to Chrome sync storage", err);
+    showError("Couldn't save that. Chrome's sync storage refused the write.");
+    return false;
+  }
+}
+
 async function setOrgs(orgs) {
-  await chrome.storage.sync.set({ orgs });
+  return saveSync({ orgs });
 }
 
 async function renderOrgs() {
@@ -74,15 +88,13 @@ async function moveOrg(idx, delta) {
   const newIdx = idx + delta;
   if (newIdx < 0 || newIdx >= orgs.length) return;
   [orgs[idx], orgs[newIdx]] = [orgs[newIdx], orgs[idx]];
-  await setOrgs(orgs);
-  renderOrgs();
+  if (await setOrgs(orgs)) renderOrgs();
 }
 
 async function removeOrg(idx) {
   const orgs = await getOrgs();
   orgs.splice(idx, 1);
-  await setOrgs(orgs);
-  renderOrgs();
+  if (await setOrgs(orgs)) renderOrgs();
 }
 
 form.addEventListener("submit", async (e) => {
@@ -107,7 +119,7 @@ form.addEventListener("submit", async (e) => {
   }
 
   orgs.push(slug);
-  await setOrgs(orgs);
+  if (!(await setOrgs(orgs))) return;
   input.value = "";
   renderOrgs();
 });
@@ -133,10 +145,8 @@ async function renderFavorites() {
     removeBtn.title = "Remove favorite";
     removeBtn.addEventListener("click", async () => {
       const { favorites: current } = await chrome.storage.sync.get({ favorites: [] });
-      await chrome.storage.sync.set({
-        favorites: current.filter((f) => f.key !== repo.key),
-      });
-      renderFavorites();
+      const kept = current.filter((f) => f.key !== repo.key);
+      if (await saveSync({ favorites: kept })) renderFavorites();
     });
 
     controls.appendChild(removeBtn);
@@ -146,7 +156,13 @@ async function renderFavorites() {
 }
 
 clearHistoryBtn.addEventListener("click", async () => {
-  await chrome.storage.local.set({ recentRepos: [] });
+  try {
+    await chrome.storage.local.set({ recentRepos: [] });
+  } catch (err) {
+    console.error("Could not clear the recent list", err);
+    showError("Couldn't clear the history. Chrome's storage refused the write.");
+    return;
+  }
   clearedMsg.hidden = false;
   setTimeout(() => {
     clearedMsg.hidden = true;

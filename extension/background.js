@@ -29,8 +29,19 @@ async function recordVisit({ owner, repo, key }) {
 }
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status !== "complete" || !tab.url) return;
-  const parsed = parseRepoFromUrl(tab.url);
+  // GitHub moves between pages with Turbo rather than full page loads, and a
+  // History API navigation fires this listener with changeInfo.url and no
+  // status cycle at all. Gating on status alone would miss every repo reached
+  // by clicking a link on GitHub itself, which is most of them. Recording the
+  // same URL twice is harmless: recordVisit is keyed and simply moves the
+  // existing entry back to the top.
+  const navigated = changeInfo.url !== undefined || changeInfo.status === "complete";
+  if (!navigated) return;
+
+  const url = changeInfo.url || tab.url;
+  if (!url) return;
+
+  const parsed = parseRepoFromUrl(url);
   if (!parsed) return;
 
   writeQueue = writeQueue

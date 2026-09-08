@@ -3,6 +3,7 @@
   "name": "Org Switcher for GitHub",
   "version": "1.0.0",
   "description": "Jump to any of your GitHub orgs and your recent or favourite repos in one click. Unofficial, not made by GitHub.",
+  "minimum_chrome_version": "91",
   "permissions": ["storage"],
   "host_permissions": ["https://github.com/*"],
   "action": {

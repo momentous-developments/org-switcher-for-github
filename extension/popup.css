@@ -313,7 +313,16 @@ ul {
   font-weight: 600;
 }
 
-/* Dim the list it governs, so a frozen list cannot be read as a broken one. */
+/* Dim the list it governs, so a frozen list cannot be read as a broken one.
+   The owner prefix is normally --text-muted, and dimming that as well stacks
+   two reductions on top of each other: at 0.45 it measured 2.18:1, under even
+   the 3:1 floor for interface text. While paused the whole row takes the full
+   text colour, so the dimming is one step rather than two, and everything in
+   the list sits at 6.25:1. */
 .repo-list.paused-list {
-  opacity: 0.45;
+  opacity: 0.6;
+}
+
+.repo-list.paused-list .repo-owner {
+  color: var(--text);
 }

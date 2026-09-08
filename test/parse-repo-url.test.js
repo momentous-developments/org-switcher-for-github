@@ -68,6 +68,16 @@ test("ignores github.com site routes rather than treating them as repos", () => 
   }
 });
 
+// "git" is a real organisation, and git/git is a repo people visit. It was on
+// the blocklist until every entry was checked against the GitHub API.
+test("does not block real accounts whose names look like site routes", () => {
+  assert.deepEqual(parseRepoFromUrl("https://github.com/git/git"), {
+    owner: "git",
+    repo: "git",
+    key: "git/git",
+  });
+});
+
 test("the reserved list has no duplicates and is all lowercase", () => {
   for (const entry of RESERVED_OWNERS) {
     assert.equal(entry, entry.toLowerCase(), `${entry} should be lowercase`);

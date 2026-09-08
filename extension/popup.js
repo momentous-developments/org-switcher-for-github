@@ -36,10 +36,23 @@ async function getState() {
   };
 }
 
+// chrome.storage.sync enforces a per-item size limit and a write rate limit.
+// An unhandled rejection here would look exactly like a click that did not
+// register, which is the worst way for a control to fail.
+async function saveSync(values) {
+  try {
+    await chrome.storage.sync.set(values);
+    return true;
+  } catch (err) {
+    console.error("Could not save to Chrome sync storage", err);
+    showMessage("Couldn't save that. Chrome's sync storage refused the write.");
+    return false;
+  }
+}
+
 async function toggleTracking() {
   const { trackingPaused } = await chrome.storage.sync.get({ trackingPaused: false });
-  await chrome.storage.sync.set({ trackingPaused: !trackingPaused });
-  render();
+  if (await saveSync({ trackingPaused: !trackingPaused })) render();
 }
 
 function renderTrackingBar(paused, recentList) {
@@ -105,7 +118,13 @@ function makeRepoRow(repo, isFavorite, onToggleStar) {
 
   const star = document.createElement("button");
   star.className = "star-btn" + (isFavorite ? " active" : "");
+  // The button's only content is a star glyph, which a screen reader announces
+  // as "black star" / "white star", so it needs a name of its own.
+  const starLabel = isFavorite
+    ? `Remove ${repo.owner}/${repo.repo} from favorites`
+    : `Add ${repo.owner}/${repo.repo} to favorites`;
   star.title = isFavorite ? "Remove from favorites" : "Add to favorites";
+  star.setAttribute("aria-label", starLabel);
   star.textContent = isFavorite ? "★" : "☆";
   star.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -152,8 +171,7 @@ async function toggleFavorite(repo) {
     }
     next = [...favorites, repo];
   }
-  await chrome.storage.sync.set({ favorites: next });
-  render();
+  if (await saveSync({ favorites: next })) render();
 }
 
 async function render() {

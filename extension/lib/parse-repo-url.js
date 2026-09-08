@@ -4,11 +4,16 @@ import { ORG_SLUG_PATTERN } from "./org-slug.js";
 // we don't record github.com/settings/profile as a repo called
 // "settings/profile". This is a blocklist and blocklists drift, which is why
 // parseRepoFromUrl also shape-checks both segments below.
+//
+// Every name here was checked against the GitHub API. "git" was removed after
+// that check: it is a real organisation, and git/git is a repo people actually
+// visit. "assets", "customer-stories" and "watching" stay, because they are
+// github.com routes first and near-empty squatted accounts second.
 export const RESERVED_OWNERS = new Set([
   "about", "account", "advisories", "apps", "assets", "blog", "business",
   "codespaces", "collections", "contact", "copilot", "customer-stories",
   "dashboard", "discussions", "education", "enterprise", "events", "explore",
-  "features", "git", "home", "issues", "join", "login", "logout",
+  "features", "home", "issues", "join", "login", "logout",
   "marketplace", "mobile", "new", "newsletter", "nonprofit", "notifications",
   "organizations", "orgs", "partners", "premium-support", "pricing",
   "projects", "pulls", "readme", "resources", "search", "security", "sessions",

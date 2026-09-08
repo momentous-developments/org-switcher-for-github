@@ -29,9 +29,17 @@ function installChromeStub() {
   return {
     sync,
     local,
+    // A hard page load: status cycles to complete and the tab carries the URL.
     async visit(url, status = "complete") {
       for (const fn of listeners) fn(1, { status }, { url });
       // Let the worker's write queue drain.
+      await new Promise((r) => setTimeout(r, 0));
+      await new Promise((r) => setTimeout(r, 0));
+    },
+    // A Turbo navigation: only changeInfo.url, no status, and Chrome has not
+    // updated tab.url yet at that point.
+    async turboVisit(url) {
+      for (const fn of listeners) fn(1, { url }, {});
       await new Promise((r) => setTimeout(r, 0));
       await new Promise((r) => setTimeout(r, 0));
     },
@@ -40,6 +48,33 @@ function installChromeStub() {
 
 const ctx = installChromeStub();
 await import("../extension/background.js");
+
+// GitHub navigates with Turbo, which fires onUpdated with changeInfo.url and
+// never reaches status "complete". If this regresses, the recent list silently
+// only catches repos opened from the address bar.
+test("records a client-side navigation that never reports status complete", async () => {
+  ctx.local.recentRepos = [];
+  await ctx.turboVisit("https://github.com/octo-org/hello-world");
+  assert.equal(
+    ctx.local.recentRepos.length,
+    1,
+    "a Turbo navigation was not recorded"
+  );
+  assert.equal(ctx.local.recentRepos[0].key, "octo-org/hello-world");
+});
+
+test("a client-side navigation to a site route is still ignored", async () => {
+  ctx.local.recentRepos = [];
+  await ctx.turboVisit("https://github.com/settings/profile");
+  assert.deepEqual(ctx.local.recentRepos, []);
+});
+
+test("the same repo seen as both a Turbo and a full load stays one entry", async () => {
+  ctx.local.recentRepos = [];
+  await ctx.turboVisit("https://github.com/octo-org/hello-world");
+  await ctx.visit("https://github.com/octo-org/hello-world");
+  assert.equal(ctx.local.recentRepos.length, 1);
+});
 
 test("records a visited repo", async () => {
   ctx.local.recentRepos = [];
