@@ -7,6 +7,7 @@
   --accent: #58a6ff;
   --star: #e3b341;
   --star-idle: #6e7681;
+  --track-on: #3fb950;
   --hover: #1c2128;
 }
 
@@ -247,4 +248,72 @@ ul {
   color: var(--text);
   font-size: 12px;
   line-height: 1.4;
+}
+
+/* Status bar for the recent-repo tracking. Pinned to the bottom of the popup:
+   a status bar that scrolls out of view when the org list gets long is not a
+   status bar. */
+.tracking-bar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 12px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.tracking-state {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.tracking-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--track-on);
+  flex-shrink: 0;
+}
+
+.tracking-action {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 2px;
+  color: var(--accent);
+  font-size: 11.5px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.tracking-action:hover,
+.tracking-action:focus-visible {
+  text-decoration: underline;
+}
+
+/* Paused speaks in one colour, rather than an amber warning with a blue link
+   stapled to it. */
+.tracking-bar.paused,
+.tracking-bar.paused .tracking-action {
+  color: var(--star);
+}
+
+.tracking-bar.paused .tracking-dot {
+  background: var(--star);
+}
+
+.tracking-bar.paused .tracking-action {
+  font-weight: 600;
+}
+
+/* Dim the list it governs, so a frozen list cannot be read as a broken one. */
+.repo-list.paused-list {
+  opacity: 0.45;
 }

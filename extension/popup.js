@@ -22,9 +22,39 @@ function openUrl(url) {
 }
 
 async function getState() {
-  const sync = await chrome.storage.sync.get({ orgs: [], favorites: [] });
+  const sync = await chrome.storage.sync.get({
+    orgs: [],
+    favorites: [],
+    trackingPaused: false,
+  });
   const local = await chrome.storage.local.get({ recentRepos: [] });
-  return { orgs: sync.orgs, favorites: sync.favorites, recentRepos: local.recentRepos };
+  return {
+    orgs: sync.orgs,
+    favorites: sync.favorites,
+    trackingPaused: sync.trackingPaused,
+    recentRepos: local.recentRepos,
+  };
+}
+
+async function toggleTracking() {
+  const { trackingPaused } = await chrome.storage.sync.get({ trackingPaused: false });
+  await chrome.storage.sync.set({ trackingPaused: !trackingPaused });
+  render();
+}
+
+function renderTrackingBar(paused, recentList) {
+  const bar = document.getElementById("trackingBar");
+  const label = document.getElementById("trackingLabel");
+  const action = document.getElementById("trackingToggle");
+
+  bar.classList.toggle("paused", paused);
+  label.textContent = paused ? "Tracking paused" : "Tracking recent repos";
+  action.textContent = paused ? "Resume" : "Pause";
+  action.setAttribute(
+    "aria-label",
+    paused ? "Resume tracking recent repos" : "Pause tracking recent repos"
+  );
+  recentList.classList.toggle("paused-list", paused);
 }
 
 function makeOrgRow(org) {
@@ -127,7 +157,7 @@ async function toggleFavorite(repo) {
 }
 
 async function render() {
-  const { orgs, favorites, recentRepos } = await getState();
+  const { orgs, favorites, recentRepos, trackingPaused } = await getState();
   const favoriteKeys = new Set(favorites.map((f) => f.key));
 
   // Organizations
@@ -162,6 +192,8 @@ async function render() {
     .filter((r) => !favoriteKeys.has(r.key))
     .slice(0, MAX_RECENT_SHOWN);
 
+  renderTrackingBar(trackingPaused, recentList);
+
   if (recentToShow.length > 0) {
     recentSection.hidden = false;
     recentToShow.forEach((repo) =>
@@ -175,5 +207,7 @@ async function render() {
 document.getElementById("settingsBtn").addEventListener("click", () => {
   chrome.runtime.openOptionsPage();
 });
+
+document.getElementById("trackingToggle").addEventListener("click", toggleTracking);
 
 render();

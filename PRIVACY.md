@@ -40,7 +40,7 @@ API, and never sees pages on any other site.
 
 The settings page has two controls for it:
 
-- **Pause recording** stops anything new being added.
+- **Pause tracking** stops anything new being added.
 - **Clear recent history** erases the list.
 
 Removing the extension deletes everything it stored.

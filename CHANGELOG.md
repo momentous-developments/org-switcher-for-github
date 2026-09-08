@@ -11,4 +11,5 @@ First public release.
   of GitHub tabs you open. Nothing is sent anywhere and no GitHub API is called.
 - Pin up to five repos as favorites, which follow your Chrome profile between
   computers.
-- Recent history can be paused and cleared from the settings page.
+- Tracking can be paused and resumed from the popup itself, which shows whether
+  it is currently tracking. History can be cleared from the settings page.

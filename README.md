@@ -53,8 +53,8 @@ the only reason the extension asks for permission on `github.com`, and it is why
 it asks for that rather than the much broader `tabs` permission, which would
 expose the address of every tab you open anywhere. It never reads page content.
 
-You can pause the recording and clear the history from the settings page at any
-time. [Full privacy policy](PRIVACY.md).
+You can pause tracking from the popup itself, and clear the history from the
+settings page, at any time. [Full privacy policy](PRIVACY.md).
 
 ## Development
 
