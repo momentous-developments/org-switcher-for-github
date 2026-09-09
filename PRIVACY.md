@@ -1,8 +1,12 @@
 # Privacy policy
 
-**Org Switcher for GitHub**
+**Org Switcher for GitHub**, a Chrome extension published by Momentous
+Technologies S.A. de C.V.
 
 Last updated: 9 September 2026
+
+This policy covers the extension only. The privacy policy for the Momentous
+website is a separate document and does not describe the extension.
 
 ## The short version
 
@@ -106,6 +110,10 @@ date at the top will change.
 
 Questions about this policy can be raised as an issue on the project's GitHub
 repository.
+
+This file is the source for the copy published on the Momentous website, which
+is the address given to the Chrome Web Store. If one is edited the other has to
+be edited with it.
 
 ---
 

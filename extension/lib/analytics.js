@@ -32,7 +32,7 @@ export const EVENT_SCREENS = {
 // anything that does not match, without an error. Keeping the two identical
 // means switching that on later cannot silently stop collection. Nothing
 // resolves at this name and nothing needs to.
-export const HOSTNAME = "org-switcher.momentous-global.com";
+export const HOSTNAME = "org-switcher.momentous.dev";
 
 // Counts go out in bands. An exact count is a weak fingerprint once it sits
 // next to a few other properties, and "4 to 6" answers the same question as
