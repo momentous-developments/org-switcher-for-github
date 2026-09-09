@@ -27,7 +27,12 @@ export const EVENT_SCREENS = {
   sync_write_failed: "/error/sync-write",
 };
 
-export const HOSTNAME = "org-switcher-for-github";
+// Must match the Domain field on the Umami website record exactly. Umami does
+// not enforce it by default, but its optional "Allowed domains" setting drops
+// anything that does not match, without an error. Keeping the two identical
+// means switching that on later cannot silently stop collection. Nothing
+// resolves at this name and nothing needs to.
+export const HOSTNAME = "org-switcher.momentous-global.com";
 
 // Counts go out in bands. An exact count is a weak fingerprint once it sits
 // next to a few other properties, and "4 to 6" answers the same question as
