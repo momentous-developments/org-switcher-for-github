@@ -108,8 +108,13 @@ date at the top will change.
 
 ## Contact
 
-Questions about this policy can be raised as an issue on the project's GitHub
-repository.
+Questions about this policy, or a request about the data it describes, can be
+sent to support@momentous-global.com.
+
+The extension is open source, so none of this has to be taken on trust. The
+code and the issue tracker are at
+<https://github.com/momentous-developments/org-switcher-for-github>, and every
+claim on this page can be checked against them.
 
 This file is the source for the copy published at
 <https://momentous.dev/privacy/org-switcher>, which is the address given to the
