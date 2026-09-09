@@ -5,6 +5,7 @@ dist/
 # Working notes that are not part of the project
 release-plan.md
 session-transcript.md
+greenlight-brief.html
 .specstory/
 
 # Local noise
@@ -13,4 +14,3 @@ node_modules/
 
 # Store listing assets are built from screenshots, not source
 store-assets/
-shadi-brief.html

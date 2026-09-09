@@ -3,13 +3,12 @@
 Jump straight to any of your GitHub organizations, and to the repos you were
 just in, from one click in the toolbar.
 
-<!-- TODO before publishing: replace with a screenshot or short GIF of the popup. -->
-
 ## Why
 
 Getting from a repo in one organization to the repo list of another takes four
 clicks on GitHub: Home, the switcher arrow, the organization, then Repositories.
-This is a small popup that makes it one.
+This is a small popup that cuts it to two: the toolbar icon, then the
+organization.
 
 ## What it does
 
@@ -24,7 +23,6 @@ This is a small popup that makes it one.
 
 ## Install
 
-<!-- TODO before publishing: replace with the Chrome Web Store link. -->
 Coming to the Chrome Web Store.
 
 To run it from source instead:
@@ -43,7 +41,7 @@ at all.
 
 The one exception is a switch on the settings page, off unless you turn it on,
 which sends anonymous counts of which features get used: that the popup was
-opened today, which button opened an organization, whether a repo came from
+opened, which button opened an organization, whether a repo came from
 favorites or recents, and so on. It never sends the name of an organization or
 repo, any address you visit, or anything identifying you. Turning it on is what
 triggers Chrome to ask for permission to reach `cloud.umami.is`; the install
@@ -77,14 +75,15 @@ node --test    # runs the tests
 ./build.sh     # produces the Chrome Web Store zip in dist/
 ```
 
-The tests cover the two pure functions where a bug would otherwise be invisible:
-the one that decides whether a URL is a repository page, and the one that
-validates an organization slug. Everything else is DOM rendering, checked by
-loading the extension and using it.
+The tests cover the logic where a bug would otherwise be invisible: whether a
+URL is a repository page, whether an organization slug is valid, where an
+organization row points, what the service worker records, when the usage-stats
+prompt appears, and exactly what a usage event may contain. Everything else is
+DOM rendering, checked by loading the extension and using it.
 
 ```
 extension/         the extension itself, loadable unpacked
-  lib/             the two pure functions, shared with the tests
+  lib/             the pure modules, shared with the tests
 test/              node --test
 build.sh           produces dist/org-switcher-for-github-<version>.zip
 ```
@@ -98,7 +97,7 @@ for the OAuth version later.
 
 ## License
 
-[MIT](LICENSE), copyright Momentous.
+[MIT](LICENSE), copyright Momentous Global Productions Ltd.
 
 ---
 
