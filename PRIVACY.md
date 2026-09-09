@@ -111,9 +111,12 @@ date at the top will change.
 Questions about this policy can be raised as an issue on the project's GitHub
 repository.
 
-This file is the source for the copy published on the Momentous website, which
-is the address given to the Chrome Web Store. If one is edited the other has to
-be edited with it.
+This file is the source for the copy published at
+<https://momentous.dev/privacy/org-switcher>, which is the address given to the
+Chrome Web Store. That page is
+`src/app/(frontend)/[locale]/privacy/org-switcher/page.tsx` in the
+`momentous-developments/momentous-website` repository, and it carries a comment
+pointing back to this file. If one is edited the other has to be edited with it.
 
 ---
 
