@@ -53,14 +53,6 @@ export function bucketFavorites(n) {
   return "3-5";
 }
 
-// The popup gets opened dozens of times a day. Counting every one of those
-// burns the monthly event allowance to tell us something we would not act on;
-// counting the first open of each day gives us daily active use, which is the
-// number the question was really about.
-export function isNewDay(lastDay, today) {
-  return typeof today === "string" && today !== "" && lastDay !== today;
-}
-
 export function todayStamp(date = new Date()) {
   const pad = (n) => String(n).padStart(2, "0");
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;

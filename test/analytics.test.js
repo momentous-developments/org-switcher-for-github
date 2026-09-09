@@ -11,7 +11,6 @@ import {
   bucketOrgs,
   buildPayload,
   canSend,
-  isNewDay,
   todayStamp,
 } from "../extension/lib/analytics.js";
 
@@ -69,13 +68,6 @@ test("the screen name never carries anything the user typed", () => {
   for (const screen of Object.values(EVENT_SCREENS)) {
     assert.match(screen, /^\/[a-z/-]*$/);
   }
-});
-
-test("a new day is any stamp that differs from the last one seen", () => {
-  assert.equal(isNewDay("", "2026-09-09"), true);
-  assert.equal(isNewDay("2026-09-08", "2026-09-09"), true);
-  assert.equal(isNewDay("2026-09-09", "2026-09-09"), false);
-  assert.equal(isNewDay("2026-09-09", ""), false);
 });
 
 test("the day stamp is local and zero padded", () => {

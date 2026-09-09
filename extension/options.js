@@ -174,7 +174,6 @@ clearHistoryBtn.addEventListener("click", async () => {
 
 const statsSection = document.getElementById("usage-stats");
 const statsToggle = document.getElementById("statsToggle");
-const statsSent = document.getElementById("statsSent");
 const statsError = document.getElementById("statsError");
 
 function showStatsError(msg) {
@@ -194,7 +193,6 @@ async function renderStats() {
   const on = analyticsEnabled && granted;
 
   statsToggle.checked = on;
-  statsSent.hidden = !on;
 
   if (analyticsEnabled && !granted) {
     await chrome.storage.local.set({ analyticsEnabled: false });

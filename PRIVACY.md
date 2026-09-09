@@ -62,7 +62,7 @@ While it is on, these are the only things sent:
 
 | Event | What goes with it |
 |---|---|
-| The first time you open the popup on a given day | Roughly how many organizations and favorites you have, in bands such as "4-6" |
+| The popup was opened | Roughly how many organizations and favorites you have, in bands such as "4-6" |
 | An organization was opened | Which button was used: the row, Overview, Repositories or Projects |
 | A repo was opened | Whether it came from your favorites or your recent list |
 | A repo was starred or unstarred | Whether it was added or removed |

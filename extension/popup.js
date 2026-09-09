@@ -3,7 +3,6 @@ import {
   WEBSITE_ID,
   bucketFavorites,
   bucketOrgs,
-  isNewDay,
   todayStamp,
 } from "./lib/analytics.js";
 import { recordDay, settle, shouldShowPrompt } from "./lib/prompt-schedule.js";
@@ -264,15 +263,13 @@ document.getElementById("trackingToggle").addEventListener("click", toggleTracki
 
 const promptEl = document.getElementById("statsPrompt");
 
-// One event per day rather than one per open. A regular user opens this dozens
-// of times a day, and counting each one would spend the whole monthly
-// allowance to tell us something we would never act on. Daily active use is
-// the number the question was actually about.
-async function reportDailyOpen({ orgs, favorites }) {
-  const { lastOpenDay } = await chrome.storage.local.get({ lastOpenDay: "" });
-  const today = todayStamp();
-  if (!isNewDay(lastOpenDay, today)) return;
-  await chrome.storage.local.set({ lastOpenDay: today });
+// Every open, not one a day. Throttling this to a daily count would roughly
+// halve the events sent, but it also makes it impossible to work out how often
+// someone opened the popup and clicked nothing, which is the closest thing
+// available to "is this actually working for people". The quota it was
+// protecting needs thousands of installs before it bites, and throttling later
+// is a one-line change, where the sessions we did not measure are gone.
+function reportOpen({ orgs, favorites }) {
   track("popup_opened", {
     orgs: bucketOrgs(orgs.length),
     favorites: bucketFavorites(favorites.length),
@@ -312,7 +309,7 @@ document.getElementById("statsPromptDismiss").addEventListener("click", settlePr
 
 async function start() {
   const state = await render();
-  await reportDailyOpen(state);
+  reportOpen(state);
   await maybeOfferStats();
 }
 
