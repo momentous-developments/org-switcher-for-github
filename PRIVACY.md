@@ -2,13 +2,18 @@
 
 **Org Switcher for GitHub**
 
-Last updated: 8 September 2026
+Last updated: 9 September 2026
 
 ## The short version
 
-This extension does not collect your data, does not transmit it, and does not
-send any network request to anyone, including us. It has no server. There is
-nothing for us to see, because nothing ever reaches us.
+Out of the box this extension sends nothing at all. It makes no network request
+to anyone, including us, and it has no server of its own.
+
+There is one switch that changes that, and it is off until you turn it on. If
+you turn on **usage stats**, the extension sends anonymous counts of which of
+its own features get used. It never sends the names of your organizations or
+repos, the addresses you visit, or anything that identifies you. What it sends
+is listed in full below.
 
 ## What the extension stores
 
@@ -46,15 +51,51 @@ You control it from two places:
 
 Removing the extension deletes everything it stored.
 
+## Usage stats, if you turn them on
+
+The switch is on the settings page under **Usage stats**, and it is off unless
+you turn it on. Turning it on asks Chrome for permission to contact
+`cloud.umami.is`; declining that dialog leaves the switch off. Turning it off
+again withdraws the permission and stops it immediately.
+
+While it is on, these are the only things sent:
+
+| Event | What goes with it |
+|---|---|
+| The first time you open the popup on a given day | Roughly how many organizations and favorites you have, in bands such as "4-6" |
+| An organization was opened | Which button was used: the row, Overview, Repositories or Projects |
+| A repo was opened | Whether it came from your favorites or your recent list |
+| A repo was starred or unstarred | Whether it was added or removed |
+| You reached the limit of five favorites | Nothing |
+| Tracking was paused or resumed | Which of the two |
+| A save to Chrome's storage failed | Nothing |
+
+Counts are sent in bands rather than exactly, because an exact number is a
+weak fingerprint once it sits alongside a few other details.
+
+What is **never** sent, whatever the switch is set to: the name of any
+organization, the name of any repo, any address you visit, the contents of any
+page, or any identifier we have created for you.
+
+The counts go to [Umami](https://umami.is), a privacy-focused analytics service,
+who process them on our behalf. Umami sets no cookie and stores no identifier in
+your browser. It counts visitors server-side from a hash of the site identifier,
+the hostname and your browser's user agent, combined with a salt that is
+rotated, and it does not store IP addresses. As with any request over the
+internet, the IP address your request comes from is visible to the receiving
+server while it is being handled.
+
 ## Permissions, and why each one is there
 
 - **`storage`** so your organizations, favorites and recent list survive closing
   the browser.
 - **`https://github.com/*`** so the extension can read the address of GitHub tabs
   you open, which is what produces the recent list.
+- **`https://cloud.umami.is/*`**, optional and not requested at install. Chrome
+  only asks for it if you turn on usage stats, and it is given up again when you
+  turn them off.
 
-There are no other permissions. There is no account, no sign-in, no token and no
-analytics.
+There are no other permissions. There is no account, no sign-in and no token.
 
 ## Changes
 

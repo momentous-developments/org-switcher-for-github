@@ -10,6 +10,8 @@ function installChromeStub() {
   const sync = { trackingPaused: false };
   const local = { recentRepos: [] };
   const listeners = [];
+  const messageListeners = [];
+  const sent = [];
 
   const read = (store, defaults) => {
     if (typeof defaults === "string") return { [defaults]: store[defaults] };
@@ -24,11 +26,26 @@ function installChromeStub() {
       local: { get: async (d) => read(local, d), set: async (o) => Object.assign(local, o) },
     },
     tabs: { onUpdated: { addListener: (fn) => listeners.push(fn) } },
+    runtime: { onMessage: { addListener: (fn) => messageListeners.push(fn) } },
+    permissions: { contains: async () => true },
+  };
+
+  // Any request at all is a failure in these tests: the worker must not reach
+  // the network with usage stats switched off.
+  globalThis.fetch = async (url) => {
+    sent.push(url);
+    return { ok: true };
   };
 
   return {
     sync,
     local,
+    sent,
+    async track(name, props) {
+      for (const fn of messageListeners) fn({ type: "track", name, props });
+      await new Promise((r) => setTimeout(r, 0));
+      await new Promise((r) => setTimeout(r, 0));
+    },
     // A hard page load: status cycles to complete and the tab carries the URL.
     async visit(url, status = "complete") {
       for (const fn of listeners) fn(1, { status }, { url });
@@ -141,4 +158,22 @@ test("simultaneous navigations do not lose a write", async () => {
   urls.forEach((u) => ctx.visit(u));
   await new Promise((r) => setTimeout(r, 20));
   assert.equal(ctx.local.recentRepos.length, 3, "a concurrent write was lost");
+});
+
+test("a usage event is dropped while stats are switched off", async () => {
+  ctx.local.analyticsEnabled = false;
+  await ctx.track("popup_opened", { orgs: "1-3" });
+  assert.deepEqual(ctx.sent, [], "nothing should reach the network");
+});
+
+test("a usage event is still dropped when the switch is on but nothing is configured", async () => {
+  ctx.local.analyticsEnabled = true;
+  await ctx.track("popup_opened", { orgs: "1-3" });
+  assert.deepEqual(ctx.sent, [], "an unset website id must stop the send on its own");
+  ctx.local.analyticsEnabled = false;
+});
+
+test("a message that is not a usage event is ignored", async () => {
+  await ctx.track(undefined, undefined);
+  assert.deepEqual(ctx.sent, []);
 });

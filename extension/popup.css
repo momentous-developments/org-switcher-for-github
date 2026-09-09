@@ -253,9 +253,17 @@ ul {
 /* Status bar for the recent-repo tracking. Pinned to the bottom of the popup:
    a status bar that scrolls out of view when the org list gets long is not a
    status bar. */
-.tracking-bar {
+/* Both strips travel together, so the sticky positioning belongs to the pair
+   rather than to the tracking bar, which used to hold it alone. Pinning them
+   separately would mean hard-coding one strip's height as the other's offset. */
+.footer {
   position: sticky;
   bottom: 0;
+  background: var(--bg);
+  z-index: 2;
+}
+
+.tracking-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -324,5 +332,76 @@ ul {
 }
 
 .repo-list.paused-list .repo-owner {
+  color: var(--text);
+}
+
+/* The one-time offer of the usage-stats switch. It sits directly above the
+   tracking bar, and it is lifted off the popup background so two strips of
+   near-identical weight do not read as one confused status line. The rule is
+   the accent rather than the amber used by .popup-message: amber in this popup
+   means something went wrong, and this is an invitation. */
+.ask-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  background: var(--bg-elevated);
+  border-top: 1px solid var(--border);
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/* .ask-strip sets display:flex, and an author display beats the UA rule that
+   the hidden attribute relies on. Without this the strip is visible on every
+   popup rather than on the one day it is meant to appear. */
+.ask-strip[hidden] {
+  display: none;
+}
+
+.ask-rule {
+  width: 2px;
+  align-self: stretch;
+  background: var(--accent);
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+.ask-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ask-go {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 2px;
+  color: var(--accent);
+  font-size: 11.5px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.ask-go:hover,
+.ask-go:focus-visible {
+  text-decoration: underline;
+}
+
+.ask-x {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0 2px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ask-x:hover,
+.ask-x:focus-visible {
   color: var(--text);
 }

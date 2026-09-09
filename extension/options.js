@@ -1,4 +1,5 @@
 import { ORG_SLUG_PATTERN, normalizeOrgInput } from "./lib/org-slug.js";
+import { UMAMI_ORIGIN, WEBSITE_ID } from "./lib/analytics.js";
 
 const form = document.getElementById("addOrgForm");
 const input = document.getElementById("orgInput");
@@ -169,5 +170,83 @@ clearHistoryBtn.addEventListener("click", async () => {
   }, 2500);
 });
 
+// ---------------------------------------------------------------- usage stats
+
+const statsSection = document.getElementById("usage-stats");
+const statsToggle = document.getElementById("statsToggle");
+const statsSent = document.getElementById("statsSent");
+const statsError = document.getElementById("statsError");
+
+function showStatsError(msg) {
+  statsError.textContent = msg;
+  statsError.hidden = false;
+}
+
+// The switch reflects two things that can disagree: what the user set here,
+// and what Chrome actually granted. A permission revoked from Chrome's own
+// extension settings has to show as off, or the box would promise something
+// that is not happening.
+async function renderStats() {
+  const { analyticsEnabled } = await chrome.storage.local.get({
+    analyticsEnabled: false,
+  });
+  const granted = await chrome.permissions.contains({ origins: [UMAMI_ORIGIN] });
+  const on = analyticsEnabled && granted;
+
+  statsToggle.checked = on;
+  statsSent.hidden = !on;
+
+  if (analyticsEnabled && !granted) {
+    await chrome.storage.local.set({ analyticsEnabled: false });
+  }
+}
+
+statsToggle.addEventListener("change", async () => {
+  statsError.hidden = true;
+
+  if (!statsToggle.checked) {
+    await chrome.storage.local.set({ analyticsEnabled: false });
+    await chrome.permissions.remove({ origins: [UMAMI_ORIGIN] });
+    await renderStats();
+    return;
+  }
+
+  if (!WEBSITE_ID) {
+    statsToggle.checked = false;
+    showStatsError("Usage stats are not configured in this build, so nothing would be sent.");
+    return;
+  }
+
+  // Must run inside the click that ticked the box: Chrome only shows the
+  // permission dialog from a user gesture.
+  let granted = false;
+  try {
+    granted = await chrome.permissions.request({ origins: [UMAMI_ORIGIN] });
+  } catch (err) {
+    console.error("Permission request failed", err);
+  }
+
+  if (!granted) {
+    statsToggle.checked = false;
+    showStatsError("Permission declined, so usage stats stay off.");
+    return;
+  }
+
+  await chrome.storage.local.set({ analyticsEnabled: true });
+  await renderStats();
+});
+
+// Arriving from the popup prompt. Scroll it into view either way; the flash is
+// only for people who have not asked for reduced motion.
+function highlightIfRequested() {
+  if (location.hash !== "#usage-stats") return;
+  statsSection.scrollIntoView({ block: "center" });
+  const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (still) return;
+  statsSection.classList.add("lit");
+  setTimeout(() => statsSection.classList.remove("lit"), 1200);
+}
+
 renderOrgs();
 renderFavorites();
+renderStats().then(highlightIfRequested);

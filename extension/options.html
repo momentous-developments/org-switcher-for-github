@@ -44,6 +44,38 @@
 
     <hr />
 
+    <section id="usage-stats" class="stats">
+      <h2>Usage stats</h2>
+
+      <label class="opt" for="statsToggle">
+        <input type="checkbox" id="statsToggle" />
+        <span class="lab">Send anonymous usage stats</span>
+      </label>
+
+      <p class="note">
+        Counts which parts of the extension get used, so it can be improved.
+        Never your organization names, repo names, or anything you visit. Off
+        unless you turn it on, and you can turn it off again whenever you like.
+      </p>
+
+      <p id="statsError" class="error" hidden></p>
+
+      <div id="statsSent" class="sent" hidden>
+        <p class="sent-h">What gets sent</p>
+        <ul>
+          <li>The first time you open the popup each day</li>
+          <li>That an organization was opened, and from which button</li>
+          <li>That a repo was opened, and whether from favorites or recents</li>
+          <li>That a repo was starred or unstarred</li>
+          <li>That tracking was paused or resumed</li>
+          <li>Roughly how many organizations and favorites you have, in bands</li>
+        </ul>
+        <p class="never">Never a name, a URL, or anything identifying you.</p>
+      </div>
+    </section>
+
+    <hr />
+
     <p class="disclaimer">
       Unofficial. Not affiliated with, endorsed by, or sponsored by GitHub, Inc.
       GitHub is a trademark of GitHub, Inc.

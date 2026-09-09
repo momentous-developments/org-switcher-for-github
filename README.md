@@ -37,8 +37,18 @@ To run it from source instead:
 
 ## What it stores, and what it sends
 
-It sends nothing. There is no server, no account, no token, no GitHub API call
-and no analytics. The extension makes no network requests at all.
+It sends nothing unless you ask it to. There is no server, no account, no token
+and no GitHub API call. Out of the box the extension makes no network requests
+at all.
+
+The one exception is a switch on the settings page, off unless you turn it on,
+which sends anonymous counts of which features get used: that the popup was
+opened today, which button opened an organization, whether a repo came from
+favorites or recents, and so on. It never sends the name of an organization or
+repo, any address you visit, or anything identifying you. Turning it on is what
+triggers Chrome to ask for permission to reach `cloud.umami.is`; the install
+prompt only ever mentions github.com. The full list is in the
+[privacy policy](PRIVACY.md).
 
 It stores three things, all of them yours:
 

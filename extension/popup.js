@@ -1,4 +1,26 @@
 import { ORG_DESTINATIONS } from "./lib/org-destinations.js";
+import {
+  WEBSITE_ID,
+  bucketFavorites,
+  bucketOrgs,
+  isNewDay,
+  todayStamp,
+} from "./lib/analytics.js";
+import { recordDay, settle, shouldShowPrompt } from "./lib/prompt-schedule.js";
+
+// Events are handed to the service worker rather than sent from here. Clicking
+// a row opens a tab, which closes the popup and would cancel a fetch started
+// in this document. The worker outlives the click.
+//
+// Nothing is gated here: the worker checks the switch and the permission, so
+// there is one place to get that check right rather than several.
+function track(name, props) {
+  try {
+    chrome.runtime.sendMessage({ type: "track", name, props }).catch(() => {});
+  } catch (err) {
+    // A closed message port is not worth a line in anyone's console.
+  }
+}
 
 const MAX_FAVORITES = 5;
 const MAX_RECENT_SHOWN = 5;
@@ -41,6 +63,7 @@ async function saveSync(values) {
     return true;
   } catch (err) {
     console.error("Could not save to Chrome sync storage", err);
+    track("sync_write_failed");
     showMessage("Couldn't save that. Chrome's sync storage refused the write.");
     return false;
   }
@@ -48,7 +71,10 @@ async function saveSync(values) {
 
 async function toggleTracking() {
   const { trackingPaused } = await chrome.storage.sync.get({ trackingPaused: false });
-  if (await saveSync({ trackingPaused: !trackingPaused })) render();
+  if (await saveSync({ trackingPaused: !trackingPaused })) {
+    track("tracking_toggled", { to: trackingPaused ? "active" : "paused" });
+    render();
+  }
 }
 
 function renderTrackingBar(paused, recentList) {
@@ -75,6 +101,7 @@ function makeOrgRow(org) {
   btn.innerHTML = `${ORG_ICON}<span class="row-label">${escapeHtml(org)}</span>`;
   btn.title = `Open ${org} repositories`;
   btn.addEventListener("click", () => {
+    track("org_opened", { via: "row" });
     openUrl(ORG_DESTINATIONS.repos(org));
   });
 
@@ -90,6 +117,7 @@ function makeOrgRow(org) {
     actionBtn.innerHTML = ACTION_ICONS[dest];
     actionBtn.addEventListener("click", (e) => {
       e.stopPropagation();
+      track("org_opened", { via: dest });
       openUrl(ORG_DESTINATIONS[dest](org));
     });
     actions.appendChild(actionBtn);
@@ -109,6 +137,7 @@ function makeRepoRow(repo, isFavorite, onToggleStar) {
   btn.title = `${repo.owner}/${repo.repo}`;
   btn.innerHTML = `${REPO_ICON}<span class="row-label"><span class="repo-owner">${escapeHtml(repo.owner)}/</span>${escapeHtml(repo.repo)}</span>`;
   btn.addEventListener("click", () => {
+    track("repo_opened", { from: isFavorite ? "favorite" : "recent" });
     openUrl(`https://github.com/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.repo)}`);
   });
 
@@ -160,6 +189,7 @@ async function toggleFavorite(repo) {
     next = favorites.filter((f) => f.key !== repo.key);
   } else {
     if (favorites.length >= MAX_FAVORITES) {
+      track("favorite_limit_hit");
       showMessage(
         `You can pin up to ${MAX_FAVORITES} favorites. Unstar one to make room.`
       );
@@ -167,11 +197,15 @@ async function toggleFavorite(repo) {
     }
     next = [...favorites, repo];
   }
-  if (await saveSync({ favorites: next })) render();
+  if (await saveSync({ favorites: next })) {
+    track("favorite_toggled", { action: exists ? "remove" : "add" });
+    render();
+  }
 }
 
 async function render() {
-  const { orgs, favorites, recentRepos, trackingPaused } = await getState();
+  const state = await getState();
+  const { orgs, favorites, recentRepos, trackingPaused } = state;
   const favoriteKeys = new Set(favorites.map((f) => f.key));
 
   // Organizations
@@ -216,6 +250,8 @@ async function render() {
   } else {
     recentSection.hidden = true;
   }
+
+  return state;
 }
 
 document.getElementById("settingsBtn").addEventListener("click", () => {
@@ -224,4 +260,60 @@ document.getElementById("settingsBtn").addEventListener("click", () => {
 
 document.getElementById("trackingToggle").addEventListener("click", toggleTracking);
 
-render();
+// ----------------------------------------------- daily open, and the one offer
+
+const promptEl = document.getElementById("statsPrompt");
+
+// One event per day rather than one per open. A regular user opens this dozens
+// of times a day, and counting each one would spend the whole monthly
+// allowance to tell us something we would never act on. Daily active use is
+// the number the question was actually about.
+async function reportDailyOpen({ orgs, favorites }) {
+  const { lastOpenDay } = await chrome.storage.local.get({ lastOpenDay: "" });
+  const today = todayStamp();
+  if (!isNewDay(lastOpenDay, today)) return;
+  await chrome.storage.local.set({ lastOpenDay: today });
+  track("popup_opened", {
+    orgs: bucketOrgs(orgs.length),
+    favorites: bucketFavorites(favorites.length),
+  });
+}
+
+// Offered once, on the fourth separate day of use, and never again afterwards
+// whether it was accepted, declined or ignored.
+async function maybeOfferStats() {
+  if (!WEBSITE_ID) return;
+  const { analyticsEnabled, promptState } = await chrome.storage.local.get({
+    analyticsEnabled: false,
+    promptState: null,
+  });
+  if (analyticsEnabled) return;
+
+  const next = recordDay(promptState, todayStamp());
+  await chrome.storage.local.set({ promptState: next });
+  promptEl.hidden = !shouldShowPrompt(next);
+}
+
+async function settlePrompt() {
+  const { promptState } = await chrome.storage.local.get({ promptState: null });
+  await chrome.storage.local.set({ promptState: settle(promptState) });
+  promptEl.hidden = true;
+}
+
+// openOptionsPage cannot carry a fragment, and the fragment is what tells the
+// settings page to scroll to the switch and light it.
+document.getElementById("statsPromptGo").addEventListener("click", async () => {
+  await settlePrompt();
+  chrome.tabs.create({ url: chrome.runtime.getURL("options.html#usage-stats") });
+  window.close();
+});
+
+document.getElementById("statsPromptDismiss").addEventListener("click", settlePrompt);
+
+async function start() {
+  const state = await render();
+  await reportDailyOpen(state);
+  await maybeOfferStats();
+}
+
+start();

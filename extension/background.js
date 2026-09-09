@@ -1,9 +1,20 @@
 // Records repos the user visits on github.com so the popup can show a "Recent"
-// list. No GitHub API calls are made and no request leaves the browser: this
-// only reads the tab's own URL, which the github.com host permission already
-// covers.
+// list. No GitHub API calls are made: this only reads the tab's own URL, which
+// the github.com host permission already covers.
+//
+// It is also where usage events are sent from, when the user has turned them
+// on. They are sent from here rather than from the popup because clicking a
+// row opens a tab and closes the popup, which would cancel a fetch started
+// there. The worker outlives the click.
 
 import { parseRepoFromUrl } from "./lib/parse-repo-url.js";
+import {
+  UMAMI_ENDPOINT,
+  UMAMI_ORIGIN,
+  WEBSITE_ID,
+  buildPayload,
+  canSend,
+} from "./lib/analytics.js";
 
 const RECENT_LIMIT = 15;
 
@@ -47,4 +58,41 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   writeQueue = writeQueue
     .then(() => recordVisit(parsed))
     .catch((err) => console.error("Failed to record visit", err));
+});
+
+// Every gate has to pass, and they are checked in this order deliberately: the
+// switch is what the user set, the permission is what Chrome actually granted,
+// and they can disagree if the permission was revoked from Chrome's own
+// settings rather than from ours.
+async function analyticsAllowed() {
+  const { analyticsEnabled } = await chrome.storage.local.get({
+    analyticsEnabled: false,
+  });
+  const granted = await chrome.permissions.contains({ origins: [UMAMI_ORIGIN] });
+  return canSend({
+    websiteId: WEBSITE_ID,
+    enabled: analyticsEnabled,
+    granted,
+  });
+}
+
+async function sendEvent(name, props) {
+  if (!(await analyticsAllowed())) return;
+  try {
+    await fetch(UMAMI_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(buildPayload(name, props)),
+    });
+  } catch (err) {
+    // Counting how the extension gets used must never be able to stop it
+    // working. A refused or offline request is dropped and nothing retries.
+    console.debug("Usage event not sent", err);
+  }
+}
+
+chrome.runtime.onMessage.addListener((message) => {
+  if (message?.type !== "track" || typeof message.name !== "string") return;
+  sendEvent(message.name, message.props || {});
+  // No response is sent, so the channel is not held open.
 });
