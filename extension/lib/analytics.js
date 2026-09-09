@@ -8,7 +8,7 @@
 
 // Paste the Website ID from Umami (Settings -> Websites -> your site -> Edit).
 // While this is empty nothing is ever sent, whatever the setting says.
-export const WEBSITE_ID = "";
+export const WEBSITE_ID = "21cd02fd-b0f1-4889-bd3b-c66f1056f843";
 
 export const UMAMI_HOST = "https://cloud.umami.is";
 export const UMAMI_ORIGIN = `${UMAMI_HOST}/*`;

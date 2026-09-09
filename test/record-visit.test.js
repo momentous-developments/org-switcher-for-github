@@ -5,6 +5,11 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
+import {
+  HOSTNAME,
+  UMAMI_ENDPOINT,
+  WEBSITE_ID,
+} from "../extension/lib/analytics.js";
 
 function installChromeStub() {
   const sync = { trackingPaused: false };
@@ -12,6 +17,7 @@ function installChromeStub() {
   const listeners = [];
   const messageListeners = [];
   const sent = [];
+  const granted = { value: false };
 
   const read = (store, defaults) => {
     if (typeof defaults === "string") return { [defaults]: store[defaults] };
@@ -27,13 +33,11 @@ function installChromeStub() {
     },
     tabs: { onUpdated: { addListener: (fn) => listeners.push(fn) } },
     runtime: { onMessage: { addListener: (fn) => messageListeners.push(fn) } },
-    permissions: { contains: async () => true },
+    permissions: { contains: async () => granted.value },
   };
 
-  // Any request at all is a failure in these tests: the worker must not reach
-  // the network with usage stats switched off.
-  globalThis.fetch = async (url) => {
-    sent.push(url);
+  globalThis.fetch = async (url, init) => {
+    sent.push({ url, init });
     return { ok: true };
   };
 
@@ -41,6 +45,7 @@ function installChromeStub() {
     sync,
     local,
     sent,
+    granted,
     async track(name, props) {
       for (const fn of messageListeners) fn({ type: "track", name, props });
       await new Promise((r) => setTimeout(r, 0));
@@ -161,19 +166,49 @@ test("simultaneous navigations do not lose a write", async () => {
 });
 
 test("a usage event is dropped while stats are switched off", async () => {
+  ctx.sent.length = 0;
   ctx.local.analyticsEnabled = false;
+  ctx.granted.value = true;
   await ctx.track("popup_opened", { orgs: "1-3" });
-  assert.deepEqual(ctx.sent, [], "nothing should reach the network");
+  assert.deepEqual(ctx.sent, [], "the switch alone must stop the send");
 });
 
-test("a usage event is still dropped when the switch is on but nothing is configured", async () => {
+test("a usage event is dropped when the switch is on but Chrome has not granted the host", async () => {
+  ctx.sent.length = 0;
   ctx.local.analyticsEnabled = true;
+  ctx.granted.value = false;
   await ctx.track("popup_opened", { orgs: "1-3" });
-  assert.deepEqual(ctx.sent, [], "an unset website id must stop the send on its own");
-  ctx.local.analyticsEnabled = false;
+  assert.deepEqual(ctx.sent, [], "a revoked permission must stop the send on its own");
+});
+
+test("a usage event is sent once, to Umami, when every gate passes", async () => {
+  ctx.sent.length = 0;
+  ctx.local.analyticsEnabled = true;
+  ctx.granted.value = true;
+  await ctx.track("org_opened", { via: "repos" });
+
+  assert.equal(ctx.sent.length, 1, "exactly one request");
+  const { url, init } = ctx.sent[0];
+  assert.equal(url, UMAMI_ENDPOINT);
+  assert.equal(init.method, "POST");
+
+  const body = JSON.parse(init.body);
+  assert.equal(body.type, "event");
+  assert.equal(body.payload.website, WEBSITE_ID);
+  assert.equal(body.payload.hostname, HOSTNAME);
+  assert.equal(body.payload.name, "org_opened");
+  assert.deepEqual(body.payload.data, { via: "repos" });
+
+  // The whole promise of the feature, asserted rather than assumed: nothing in
+  // what goes out can name an organization, a repo or an address.
+  assert.equal(JSON.stringify(body).includes("github.com"), false);
+  assert.deepEqual(Object.keys(body.payload).sort(), ["data", "hostname", "name", "url", "website"]);
 });
 
 test("a message that is not a usage event is ignored", async () => {
+  ctx.sent.length = 0;
+  ctx.local.analyticsEnabled = true;
+  ctx.granted.value = true;
   await ctx.track(undefined, undefined);
   assert.deepEqual(ctx.sent, []);
 });
